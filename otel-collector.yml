@@ -1,0 +1,19 @@
+services:
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.120.0
+    container_name: otel-collector
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./telemetry-data.json:/etc/telemetry-data.json
+    networks:   
+      - demonet   
+    ports:
+      - "4318:4318"
+
+networks:
+  demonet:
+    external: true
+    name: demonet      

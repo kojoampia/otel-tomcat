@@ -1,0 +1,16 @@
+services:
+  fon-tomcat-demo:
+     image: demo-otel-tomcat:1.0
+     container_name: demo-fon-tomcat
+     restart: unless-stopped
+     networks:
+       - demonet
+     ports:
+       - 4300:8080
+     volumes:
+       - ./setenv.sh:/usr/local/tomcat/bin/setenv.sh
+
+networks:
+  demonet:
+    external: true
+    name: demonet      
