@@ -15,5 +15,13 @@ services:
 
 networks:
   demonet:
+    driver: bridge
     external: true
-    name: demonet      
+    name: demonet
+    # Ensure the network 'demonet' exists before running this service
+    # You can create it with:
+    # docker network create demonet
+    # If you want to use a different network, change the name here and in the docker-compose.yml file
+    # Ensure the network is created before running this service
+
+

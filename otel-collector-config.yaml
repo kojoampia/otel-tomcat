@@ -1,8 +1,16 @@
 receivers:
   otlp:
     protocols:
-      http:
-        endpoint: 0.0.0.0:4318
+      grpc:
+        http:
+      # The OTLP receiver listens for incoming telemetry data.
+      # It supports both gRPC and HTTP protocols.
+      # This allows the collector to receive data from various sources like applications and services.
+      # The OTLP receiver is essential for collecting telemetry data in a standardized format.
+          endpoint: "http://localhost:4318"
+      # The endpoint specifies where the OTLP receiver listens for incoming data.
+      # In this case, it listens on port 4318 for both gRPC and HTTP protocols.
+      # This endpoint is used by applications and services to send telemetry data to the collector.
 
 processors:
   batch:

@@ -1,6 +1,6 @@
 services:
   fon-tomcat-demo:
-     image: demo-otel-tomcat:1.0
+     image: demo-otel-tomcat
      container_name: demo-fon-tomcat
      restart: unless-stopped
      networks:
