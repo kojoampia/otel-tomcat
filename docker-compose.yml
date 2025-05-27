@@ -5,8 +5,12 @@ name: demo-otel-tomcat
 services:
 
   demo-app:
-    image: demo-app
     container_name: demo-app
+    image: demo-app
+    build:
+      context: app/.
+      dockerfile: Dockerfile
+    restart: unless-stopped    
     environment:
       - OTEL_SERVICE_NAME=demo-app
       - OTEL_INSTRUMENTATION_MICROMETER_ENABLED=true
