@@ -10,6 +10,70 @@ services:
      volumes:
        - ./setenv.sh:/usr/local/tomcat/bin/setenv.sh
 
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    ports:
+      - "3000:3000"
+    networks:
+      - demonet  
+
+  mimir-1:
+    image: grafana/mimir:2.14.3
+    command: [ "-config.file=/etc/mimir.yaml" ]
+    container_name: mimir-1
+    hostname: mimir-1
+    volumes:
+      - ./mimir.yaml:/etc/mimir.yaml
+    ports:
+      - "8080:8080"
+    networks:
+      - demonet  
+
+  mimir-2:
+    image: grafana/mimir:2.14.3
+    command: [ "-config.file=/etc/mimir.yaml" ]
+    container_name: mimir-2
+    hostname: mimir-2
+    volumes:
+      - ./mimir.yaml:/etc/mimir.yaml
+    networks:
+      - demonet  
+
+  mimir-3:
+    image: grafana/mimir:2.14.3
+    command: [ "-config.file=/etc/mimir.yaml" ]
+    container_name: mimir-3
+    hostname: mimir-3
+    volumes:
+      - ./mimir.yaml:/etc/mimir.yaml
+    networks:
+      - demonet  
+
+  tempo:
+    image: grafana/tempo:2.7.1
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+    networks:
+      - demonet  
+
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: loki
+    environment:
+      - LOKI_STORAGE_BACKEND=memory
+    ports:
+      - "3100:3100"
+    networks:
+      - demonet  
+
 networks:
   demonet:
     external: true
