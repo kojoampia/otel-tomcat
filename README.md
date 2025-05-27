@@ -33,7 +33,7 @@ otel-tomcat/
 ### Build the Project
 1. Navigate to the project directory:
    ```bash
-   cd otel-tomcat
+   cd otel-tomcat/app
    ```
 2. Build the project using Maven:
    ```bash
@@ -41,10 +41,17 @@ otel-tomcat/
    ```
 ### Dockerfile
 ```dockerfile
-FROM openjdk:11-jre-slim
-COPY target/demo-otel-tomcat.jar /app/demo-otel-tomcat.jar
+FROM tomcat:10.1.25-jre21-temurin-jammy
+LABEL maintainer="kojo.ampia@jojoaddison.net"
+
+ADD otel-javaagent.jar /usr/local/tomcat/
+ADD setenv.sh /usr/local/tomcat/bin/
+ADD app/target/app.war /usr/local/tomcat/webapps/
+
+RUN ["chmod", "+x", "/usr/local/tomcat/bin/setenv.sh"]
+
 EXPOSE 8080
-CMD ["java", "-jar", "/app/demo-otel-tomcat.jar"]
+CMD ["catalina.sh", "run"]
 ```
 ### Docker Compose
 ```yaml

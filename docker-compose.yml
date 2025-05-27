@@ -1,3 +1,7 @@
+# This file is part of the demo-otel-tomcat project.
+# It is used to define the Docker Compose configuration for running a Tomcat server with OpenTelemetry support.
+# The configuration includes the OpenTelemetry Collector, which collects and exports telemetry data from the Tomcat server.
+name: demo-otel-tomcat
 services:
 
   demo-app:
@@ -22,7 +26,7 @@ services:
      networks:
        - demonet
      ports:
-       - 4300:8080
+       - 8080:8080
      volumes:
        - ./setenv.sh:/usr/local/tomcat/bin/setenv.sh
 
@@ -93,4 +97,6 @@ services:
 networks:
   demonet:
     external: true
-    name: demonet      
+    name: demonet
+    driver: bridge
+    # Ensure the network 'demonet' exists before running this service

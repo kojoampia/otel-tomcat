@@ -11,7 +11,31 @@ services:
     networks:   
       - demonet   
     ports:
-      - "4318:4318"
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+      - "55681:55681"  # Prometheus metrics
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=otel-collector,service.version=0.120.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_TIMEOUT=10s
+      - OTEL_LOG_LEVEL=debug
+      - OTEL_COLLECTOR_ZIPKIN_ENDPOINT=http://otel-collector:9411/api/v2/spans
+      - OTEL_COLLECTOR_JAEGER_ENDPOINT=http://otel-collector:14268/api/traces
+      - OTEL_COLLECTOR_PROMETHEUS_ENDPOINT=http://otel-collector:55681/metrics
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4317/v1/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Ensure the otel-collector service is running before other services that depend on it
+    depends_on:
+      - otel-collector
 
 networks:
   demonet:

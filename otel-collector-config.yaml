@@ -1,33 +1,126 @@
+# The otel-collector-config.yaml file configures the OpenTelemetry Collector to receive, process, and export telemetry data.
+# It defines receivers, processors, and exporters for handling telemetry data.
+# This configuration is essential for collecting and exporting telemetry data from various sources like applications and services.
+# The OpenTelemetry Collector is a vendor-agnostic service that can receive, process, and export telemetry data.
+# This configuration file is used to set up the OpenTelemetry Collector with various receivers, processors, and exporters.
+
 receivers:
-  otlp:
+  # The receivers section defines how the OpenTelemetry Collector receives telemetry data.
+  # It specifies the protocols and endpoints for receiving data from various sources.
+  # The OTLP (OpenTelemetry Protocol) receiver is used to collect telemetry data from applications and services.
+  # The OTLP receiver supports both gRPC and HTTP protocols, allowing flexibility in how data is sent to the collector.
+  # The OTLP receiver is essential for collecting telemetry data in a standardized format.
+  # The OTLP receiver listens for incoming telemetry data from applications and services.
+  otlp:  
     protocols:
       grpc:
-        http:
       # The OTLP receiver listens for incoming telemetry data.
       # It supports both gRPC and HTTP protocols.
       # This allows the collector to receive data from various sources like applications and services.
       # The OTLP receiver is essential for collecting telemetry data in a standardized format.
-          endpoint: "http://localhost:4318"
+          endpoint: "localhost:4317"
+      # The endpoint specifies where the OTLP receiver listens for incoming data.
+      # In this case, it listens on port 4317 for gRPC protocol.  
+      http:
+      # The OTLP receiver listens for incoming telemetry data.
+      # It supports both gRPC and HTTP protocols.
+      # This allows the collector to receive data from various sources like applications and services.
+      # The OTLP receiver is essential for collecting telemetry data in a standardized format.
+          endpoint: "localhost:4318"
       # The endpoint specifies where the OTLP receiver listens for incoming data.
       # In this case, it listens on port 4318 for both gRPC and HTTP protocols.
       # This endpoint is used by applications and services to send telemetry data to the collector.
+      cors:
+        allowed_origins: ["*"]
+        allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        allowed_headers: ["*"]
+        exposed_headers: ["*"]
+        max_age: 3600
+        allow_credentials: true
+      # CORS (Cross-Origin Resource Sharing) settings for the OTLP receiver.
+      # This configuration allows the OTLP receiver to handle requests from different origins.
+      # It specifies which origins, methods, and headers are allowed in requests.
+      # This is important for web applications that need to send telemetry data to the collector. 
+      
 
 processors:
   batch:
+    timeout: 10s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+    # The batch processor groups telemetry data into batches before sending it to exporters.
+    # This improves performance by reducing the number of requests sent to exporters.
+    # The timeout specifies how long to wait before sending a batch, and the batch sizes control the maximum number of items in a batch.
+  memory_limiter:
+    limit_mib: 500
+    spike_limit_mib: 100
+    check_interval: 5s
+    # The memory limiter processor restricts the amount of memory used by the collector.
+    # It helps prevent out-of-memory errors by limiting the memory usage of the collector.
+    # The limit specifies the maximum memory allowed, and the spike limit controls how much memory can be used temporarily.
+    # The check interval determines how often the memory usage is checked.
+  resource:
+    attributes:
+      - key: service.name
+        value: otel-collector
+        action: upsert
+      - key: service.version
+        value: "0.120.0"
+        action: upsert
+    # The resource processor adds attributes to the telemetry data that describe the service.
+    # This includes the service name and version, which helps identify the source of the telemetry data.
+    # The action 'upsert' means that if the attribute already exists, it will be updated; otherwise, it will be added.
+
 
 exporters:
   file:
     path: /etc/telemetry-data.json
+    # The file exporter writes telemetry data to a specified file.
+  # This is useful for debugging or storing telemetry data for later analysis.
+  # The otlphttp exporters send telemetry data to various endpoints using the OTLP HTTP protocol.
+  ###############################################################################
   otlphttp/metrics:
     endpoint: "http://mimir-1:8080/otlp"
     headers:
-      "X-Scope-OrgID": "pluralsight"
+      "X-Scope-OrgID": "jojoaddison"
+  # The otlphttp/metrics exporter sends telemetry data to a specified endpoint using the OTLP HTTP protocol.
+  # The endpoint is configured to send metrics data to Mimir, a time-series database.
+  # The headers section allows you to add custom headers to the request, such as authentication tokens or organization IDs.
+  # This is useful for integrating with external systems that require specific headers.
+  ###############################################################################
+  otlphttp/metrics2:
+    endpoint: "http://mimir-2:8080/otlp"
+    headers:
+      "X-Scope-OrgID": "jojoaddison"
+  # The otlphttp/metrics2 exporter sends telemetry data to a second endpoint using the OTLP HTTP protocol.
+  # This allows for redundancy or load balancing by sending data to multiple endpoints.
+  # The endpoint is configured to send metrics data to Mimir, a time-series database.
+  # The headers section allows you to add custom headers to the request, such as authentication tokens or organization IDs.
+  # This is useful for integrating with external systems that require specific headers.
+  ###############################################################################
   otlphttp/traces:
     endpoint: "http://tempo:4318"
+    headers:
+      "X-Scope-OrgID": "jojoaddison"
+  # The otlphttp/traces exporter sends telemetry data to a specified endpoint using the OTLP HTTP protocol.
+  # The endpoint is configured to send traces data to Tempo, a distributed tracing system.
+  # The headers section allows you to add custom headers to the request, such as authentication tokens or organization IDs.
+  # This is useful for integrating with external systems that require specific headers.
+  ###############################################################################
   otlphttp/logs:
     endpoint: "http://loki:3100/otlp"
+    headers:
+      "X-Scope-OrgID": "jojoaddison"
+  # The otlphttp/logs exporter sends telemetry data to a specified endpoint using the OTLP HTTP protocol.
+  # The endpoint is configured to send logs data to Loki, a log aggregation system.
+  # The headers section allows you to add custom headers to the request, such as authentication tokens or organization IDs.
+  # This is useful for integrating with external systems that require specific headers.
+  ###############################################################################
   debug:
     verbosity: detailed
+    # The debug exporter outputs telemetry data to the console for debugging purposes.
+# This is useful for development and troubleshooting, as it allows you to see the telemetry data being processed by the collector.
+
 
 service:
   pipelines:
