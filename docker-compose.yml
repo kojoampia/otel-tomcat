@@ -1,4 +1,20 @@
 services:
+
+  demo-app:
+    image: demo-app
+    container_name: demo-app
+    environment:
+      - OTEL_SERVICE_NAME=demo-app
+      - OTEL_INSTRUMENTATION_MICROMETER_ENABLED=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_METRICS_ENABLED=true
+      - OTEL_EXPORTER_OTLP_TRACES_ENABLED=true
+      - OTEL_EXPORTER_OTLP_LOGGING_ENABLED=true
+    ports:
+      - "6000:6000"
+    networks:
+      - demonet  
+
   fon-tomcat-demo:
      image: demo-otel-tomcat
      container_name: demo-fon-tomcat
@@ -15,7 +31,7 @@ services:
     container_name: grafana
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
     ports:
       - "3000:3000"
     networks:

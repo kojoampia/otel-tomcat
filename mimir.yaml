@@ -1,0 +1,11 @@
+target: all
+
+common:
+  storage:
+    backend: filesystem
+
+memberlist:
+  join_members: [mimir-1, mimir-2, mimir-3]
+
+server:
+  log_level: debug
