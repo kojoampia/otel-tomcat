@@ -18,7 +18,7 @@ receivers:
       # It supports both gRPC and HTTP protocols.
       # This allows the collector to receive data from various sources like applications and services.
       # The OTLP receiver is essential for collecting telemetry data in a standardized format.
-          endpoint: "localhost:4317"
+          endpoint: ":4317"
       # The endpoint specifies where the OTLP receiver listens for incoming data.
       # In this case, it listens on port 4317 for gRPC protocol.  
       http:
@@ -26,22 +26,29 @@ receivers:
       # It supports both gRPC and HTTP protocols.
       # This allows the collector to receive data from various sources like applications and services.
       # The OTLP receiver is essential for collecting telemetry data in a standardized format.
-          endpoint: "localhost:4318"
+          endpoint: ":4318"
       # The endpoint specifies where the OTLP receiver listens for incoming data.
       # In this case, it listens on port 4318 for both gRPC and HTTP protocols.
       # This endpoint is used by applications and services to send telemetry data to the collector.
-      cors:
-        allowed_origins: ["*"]
-        allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-        allowed_headers: ["*"]
-        exposed_headers: ["*"]
-        max_age: 3600
-        allow_credentials: true
+#      cors:
+#        allowed_origins: ["*"]
+#        allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+#        allowed_headers: ["*"]
+#        exposed_headers: ["*"]
+#        max_age: 3600
+#        allow_credentials: true
       # CORS (Cross-Origin Resource Sharing) settings for the OTLP receiver.
       # This configuration allows the OTLP receiver to handle requests from different origins.
       # It specifies which origins, methods, and headers are allowed in requests.
       # This is important for web applications that need to send telemetry data to the collector. 
-      
+
+  filelog:
+    include: ["/var/log/otel-collector/*.log"]
+    # The filelog receiver reads log files from the specified directory.
+    # It is useful for collecting logs from applications or services that write to files.
+    # The include section specifies the path to the log files to be monitored by the collector.
+    # This allows the collector to read and process logs from multiple sources.
+
 
 processors:
   batch:
@@ -74,7 +81,7 @@ processors:
 
 exporters:
   file:
-    path: /etc/telemetry-data.json
+    path: ./telemetry-data.json
     # The file exporter writes telemetry data to a specified file.
   # This is useful for debugging or storing telemetry data for later analysis.
   # The otlphttp exporters send telemetry data to various endpoints using the OTLP HTTP protocol.
@@ -118,6 +125,8 @@ exporters:
   ###############################################################################
   debug:
     verbosity: detailed
+    sampling_initial: 100
+    sampling_thereafter: 10
     # The debug exporter outputs telemetry data to the console for debugging purposes.
 # This is useful for development and troubleshooting, as it allows you to see the telemetry data being processed by the collector.
 
@@ -135,4 +144,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlphttp/logs]
+      exporters: [otlphttp/logs, debug]
